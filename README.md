@@ -210,80 +210,10 @@ ls -la
 
 ---
 
-### Phase 2 — Django App Preparation
 
-#### Step 2.1 — Update requirements.txt
+### Phase 2 — Docker Image Build & Test
 
-Original file only has `django`. Production needs more:
-
-```bash
-cat > requirements.txt << 'EOF'
-django>=3.2
-gunicorn>=20.1.0
-psycopg2-binary>=2.9.0
-whitenoise>=6.0.0
-EOF
-
-cat requirements.txt   # Verify
-```
-
-#### Step 2.2 — Fix Dockerfile
-
-Original Dockerfile had wrong module paths (`myproject` instead of `hello_world_django_app`):
-
-```bash
-# Fix DJANGO_SETTINGS_MODULE
-sed -i 's/myproject.settings.production/hello_world_django_app.settings/g' Dockerfile
-
-# Fix gunicorn WSGI path
-sed -i 's/myproject.wsgi:application/hello_world_django_app.wsgi:application/g' Dockerfile
-
-# Verify both fixes
-grep -n "hello_world\|DJANGO_SETTINGS\|gunicorn" Dockerfile
-```
-
-Expected output:
-```
-45:    DJANGO_SETTINGS_MODULE=hello_world_django_app.settings
-89:CMD ["gunicorn", ... "hello_world_django_app.wsgi:application"]
-```
-
-#### Step 2.3 — Add STATIC_ROOT to settings.py
-
-Required for `collectstatic` to run during Docker build:
-
-```bash
-echo "STATIC_ROOT = BASE_DIR / 'static'" >> hello_world_django_app/settings.py
-
-# Verify
-tail -3 hello_world_django_app/settings.py
-```
-
-#### Step 2.4 — Add Health Check Endpoint
-
-ALB and ECS need `/health/` to check if container is alive:
-
-```bash
-cat > hello_world_django_app/urls.py << 'EOF'
-from django.contrib import admin
-from django.urls import path
-from django.http import JsonResponse
-
-def health_check(request):
-    return JsonResponse({"status": "healthy"}, status=200)
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('health/', health_check),
-]
-EOF
-```
-
----
-
-### Phase 3 — Docker Image Build & Test
-
-#### Step 3.1 — Build Docker Image
+#### Step 2.1 — Build Docker Image
 
 ```bash
 docker build -t hello-world-django-app:version-1 .
@@ -298,13 +228,13 @@ Successfully tagged hello-world-django-app:version-1
 125 static files copied to '/usr/src/app/static'
 ```
 
-#### Step 3.2 — Verify Image
+#### Step 2.2 — Verify Image
 
 ```bash
 docker images | grep hello-world-django-app
 ```
 
-#### Step 3.3 — Test Locally
+#### Step 2.3 — Test Locally
 
 ```bash
 # Run container
@@ -326,9 +256,9 @@ docker stop django-test && docker rm django-test
 
 ---
 
-### Phase 4 — AWS ECR Setup & Push
+### Phase 3 — AWS ECR Setup & Push
 
-#### Step 4.1 — Set Environment Variables
+#### Step 3.1 — Set Environment Variables
 
 > ⚠️ If you open a new terminal session, you must re-run these exports!
 
@@ -341,7 +271,7 @@ echo "Account: $AWS_ACCOUNT_ID"
 echo "ECR URI: $ECR_URI"
 ```
 
-#### Step 4.2 — Create ECR Repository
+#### Step 3.2 — Create ECR Repository
 
 ```bash
 aws ecr create-repository \
@@ -353,7 +283,7 @@ aws ecr create-repository \
 
 > `scanOnPush=true` automatically scans for security vulnerabilities
 
-#### Step 4.3 — Login to ECR
+#### Step 3.3 — Login to ECR
 
 ```bash
 aws ecr get-login-password --region $AWS_REGION | \
@@ -363,7 +293,7 @@ ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
 
 Expected: `Login Succeeded`
 
-#### Step 4.4 — Tag & Push Image
+#### Step 3.4 — Tag & Push Image
 
 ```bash
 # Tag for ECR
@@ -373,7 +303,7 @@ docker tag hello-world-django-app:version-1 $ECR_URI:latest
 docker push $ECR_URI:latest
 ```
 
-#### Step 4.5 — Verify Image in ECR
+#### Step 3.5 — Verify Image in ECR
 
 ```bash
 aws ecr describe-images \
@@ -385,9 +315,9 @@ Expected: `"imageStatus": "ACTIVE"`
 
 ---
 
-### Phase 5 — AWS ECS Setup
+### Phase 4 — AWS ECS Setup
 
-#### Step 5.1 — Create IAM Role for ECS
+#### Step 4.1 — Create IAM Role for ECS
 
 ```bash
 # Trust policy
@@ -431,7 +361,7 @@ Expected:
 ["AmazonECSTaskExecutionRolePolicy", "CloudWatchLogsFullAccess"]
 ```
 
-#### Step 5.2 — Get Network Info
+#### Step 4.2 — Get Network Info
 
 ```bash
 # Default VPC
@@ -455,7 +385,7 @@ export SUBNET_ID=subnet-xxxxxxxxxxxxxxxxx
 echo "VPC: $VPC_ID | SG: $SG_ID | Subnet: $SUBNET_ID"
 ```
 
-#### Step 5.3 — Create ECS Cluster
+#### Step 4.3 — Create ECS Cluster
 
 ```bash
 aws ecs create-cluster \
@@ -465,7 +395,7 @@ aws ecs create-cluster \
 
 Expected: `"status": "ACTIVE"`
 
-#### Step 5.4 — Create Task Definition
+#### Step 4.4 — Create Task Definition
 
 ```bash
 cat > task-definition.json << EOF
@@ -526,11 +456,11 @@ Expected:
 
 ---
 
-### Phase 6 — Load Balancer Setup
+### Phase 5 — Load Balancer Setup
 
 > ⚠️ **Important:** Load Balancer MUST be configured before creating the ECS Service. AWS does not allow adding ALB to an existing service.
 
-#### Step 6.1 — Create ALB
+#### Step 5.1 — Create ALB
 
 ```bash
 # Replace SUBNET_1 SUBNET_2 SUBNET_3 with your actual subnet IDs
@@ -548,7 +478,7 @@ ALB_ARN=$(aws elbv2 create-load-balancer \
 echo "ALB ARN: $ALB_ARN"
 ```
 
-#### Step 6.2 — Create Target Group
+#### Step 5.2 — Create Target Group
 
 ```bash
 TG_ARN=$(aws elbv2 create-target-group \
@@ -570,7 +500,7 @@ TG_ARN=$(aws elbv2 create-target-group \
 echo "Target Group ARN: $TG_ARN"
 ```
 
-#### Step 6.3 — Create ALB Listener
+#### Step 5.3 — Create ALB Listener
 
 ```bash
 LISTENER_ARN=$(aws elbv2 create-listener \
@@ -585,7 +515,7 @@ LISTENER_ARN=$(aws elbv2 create-listener \
 echo "Listener ARN: $LISTENER_ARN"
 ```
 
-#### Step 6.4 — Open Ports in Security Group
+#### Step 5.4 — Open Ports in Security Group
 
 ```bash
 # Port 80 for ALB
@@ -601,9 +531,9 @@ aws ec2 authorize-security-group-ingress \
 
 ---
 
-### Phase 7 — Deploy & Verify
+### Phase 6 — Deploy & Verify
 
-#### Step 7.1 — Create ECS Service with ALB
+#### Step 6.1 — Create ECS Service with ALB
 
 ```bash
 aws ecs create-service \
@@ -619,7 +549,7 @@ aws ecs create-service \
     --query 'service.{Name:serviceName,Status:status}'
 ```
 
-#### Step 7.2 — Wait & Check Status
+#### Step 6.2 — Wait & Check Status
 
 ```bash
 # Wait 3 minutes for task to start
@@ -647,7 +577,7 @@ aws ecs describe-services \
     --query 'services[0].events[0:3]'
 ```
 
-#### Step 7.3 — Get ALB URL & Test
+#### Step 6.3 — Get ALB URL & Test
 
 ```bash
 # Get ALB DNS
@@ -772,7 +702,7 @@ Django Production Setup      ████████████████░
 
 <div align="center">
 
-**👨‍💻 Implemented by [@hmurafique](https://github.com/hmurafique)**
+**👨‍💻 Implemented by [@hmurafique](https://github.com/hmurafiqu Hafiz Muhammad Umar Rafique)**
 
 *Part of my 40 Real-World DevOps Projects Portfolio*
 
