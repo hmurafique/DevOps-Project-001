@@ -1,4 +1,4 @@
-# 🚀 DevOps Project 04 — Deploy Django Application on AWS ECS & ECR
+# 🚀 DevOps Project001 — Deploy Django Application on AWS ECS & ECR
 
 <div align="center">
 
@@ -7,7 +7,7 @@
 ![Django](https://img.shields.io/badge/Django-Python%20Web%20Framework-092E20?style=for-the-badge&logo=django&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge)
 
-**Containerize a Django app → Push to AWS ECR → Deploy on AWS ECS Fargate → Expose via Application Load Balancer**
+**Containerize a Django Application → Push to AWS ECR → Deploy on AWS ECS Fargate → Expose via AWS ALB**
 
 *Implemented by [@hmurafique](https://github.com/hmurafique)*
 
@@ -38,14 +38,14 @@
 
 ## 📌 Project Overview
 
-This project demonstrates how to **containerize a Django web application** and deploy it on **AWS using ECS (Elastic Container Service) and ECR (Elastic Container Registry)** with a proper **Application Load Balancer (ALB)** for production-grade traffic management.
+This project demonstrates how to **Containerize a Django Web Application** and deploy it on **AWS using ECS (Elastic Container Service) and ECR (Elastic Container Registry)** with a proper **ALB (Application Load Balancer)** for production-grade traffic management.
 
 ### What We Built
-- Dockerized a Django application with **Gunicorn** as WSGI server
-- Pushed the Docker image to **AWS ECR** (private container registry)
-- Created an **ECS Fargate cluster** (serverless — no EC2 management needed)
-- Set up an **Application Load Balancer** on Port 80
-- Configured **CloudWatch Logs** for container monitoring
+- Dockerized a Django Application with **Gunicorn** as WSGI server
+- Pushed the Docker Image to **AWS ECR** (private container registry)
+- Created an **ECS Fargate Cluster** (serverless — no EC2 management needed)
+- Set up an **AWS ALB** on Port 80
+- Configured **AWS CloudWatch Logs** for container monitoring
 - Added a `/health/` endpoint for health checks
 
 ---
@@ -54,32 +54,32 @@ This project demonstrates how to **containerize a Django web application** and d
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                        Internet                          │
+│                        Internet                         │
 └─────────────────────────┬───────────────────────────────┘
                           │ Port 80
 ┌─────────────────────────▼───────────────────────────────┐
-│          Application Load Balancer (ALB)                 │
-│              django-app-alb                              │
-│         Port 80 → Forward to Target Group                │
+│          Application Load Balancer (ALB)                │
+│              django-app-alb                             │
+│         Port 80 → Forward to Target Group               │
 └─────────────────────────┬───────────────────────────────┘
                           │
 ┌─────────────────────────▼───────────────────────────────┐
-│           Target Group (django-app-tg)                   │
-│           Health Check: /health/ → Port 8000             │
+│           Target Group (django-app-tg)                  │
+│           Health Check: /health/ → Port 8000            │
 └─────────────────────────┬───────────────────────────────┘
                           │
 ┌─────────────────────────▼───────────────────────────────┐
-│        ECS Fargate Cluster (django-app-cluster)          │
+│        ECS Fargate Cluster (django-app-cluster)         │
 │  ┌─────────────────────────────────────────────────┐    │
 │  │          ECS Task (django-app-task)             │    │
 │  │   Django Container (Port 8000)                  │    │
 │  │   Gunicorn WSGI Server — 3 Workers              │    │
 │  └─────────────────────────────────────────────────┘    │
-└──────────────────────────────────────────────────────────┘
+└─────────────────────────────────────────────────────────┘
          │ Pull Image                    │ Send Logs
 ┌────────▼──────────┐          ┌─────────▼──────────┐
-│   AWS ECR Repo    │          │  CloudWatch Logs    │
-│ hello-world-      │          │  /ecs/django-app    │
+│   AWS ECR Repo    │          │  CloudWatch Logs   │
+│ hello-world-      │          │  /ecs/django-app   │
 │ django-app:latest │          └────────────────────┘
 └───────────────────┘
 ```
@@ -150,7 +150,7 @@ Your IAM user must have:
 ## 📁 Project Structure
 
 ```
-DevOps-Project-04/
+DevOps-Project-001/
 ├── Dockerfile                      # Multi-stage Docker build
 ├── manage.py                       # Django management script
 ├── requirements.txt                # Python dependencies
@@ -204,7 +204,7 @@ Expected output:
 
 ```bash
 git clone https://github.com/NotHarshhaa/DevOps-Projects.git
-cd DevOps-Projects/DevOps-Project-04
+cd DevOps-Projects/DevOps-Project-001
 ls -la
 ```
 
