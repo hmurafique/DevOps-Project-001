@@ -702,9 +702,8 @@ Django Production Setup      ████████████████░
 
 <div align="center">
 
-**👨‍💻 Implemented by [@hmurafique](https://github.com/hmurafiqu Hafiz Muhammad Umar Rafique)**
+**👨‍💻 Implemented by [@hmurafique](https://github.com/hmurafie Hafiz Muhammad Umar Rafique)**
 
-*Part of my 40 Real-World DevOps Projects Portfolio*
 
 ⭐ **If this helped you, give it a star!**
 
