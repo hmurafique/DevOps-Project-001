@@ -203,8 +203,8 @@ Expected output:
 #### Step 1.2 — Clone Project
 
 ```bash
-git clone https://github.com/NotHarshhaa/DevOps-Projects.git
-cd DevOps-Projects/DevOps-Project-001
+git clone https://github.com/hmurafique/DevOps-Project-001.git
+cd DevOps-Project-001
 ls -la
 ```
 
