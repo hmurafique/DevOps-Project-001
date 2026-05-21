@@ -1,4 +1,4 @@
-# 🚀 DevOps Project001 — Deploy Django Application on AWS ECS & ECR
+# 🚀 DevOps Project 01 — Deploy Django Application on AWS ECS & ECR
 
 <div align="center">
 
@@ -682,7 +682,6 @@ Django Production Setup      ████████████████░
 
 ## 🔗 References
 
-- [Original Project by NotHarshhaa](https://github.com/NotHarshhaa/DevOps-Projects/tree/master/DevOps-Project-04)
 - [AWS ECS Documentation](https://docs.aws.amazon.com/ecs/)
 - [AWS ECR Documentation](https://docs.aws.amazon.com/ecr/)
 - [Django Deployment Checklist](https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/)
@@ -702,7 +701,7 @@ Django Production Setup      ████████████████░
 
 <div align="center">
 
-**👨‍💻 Implemented by [@hmurafique](https://github.com/hmurafie Hafiz Muhammad Umar Rafique)**
+**👨‍💻 Implemented by [@hmurafique](https://github.com/hmurafique Hafiz Muhammad Umar Rafique)**
 
 
 ⭐ **If this helped you, give it a star!**
