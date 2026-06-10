@@ -1,4 +1,5 @@
-# 🚀 DevOps Project 01 — Deploy Django Application on AWS ECS & ECR
+# 🚀 DevOps Project 001 
+# Deploy Django Application on AWS ECS & ECR
 
 <div align="center">
 
